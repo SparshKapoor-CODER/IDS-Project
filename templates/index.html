@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IDS Inference – CSV Upload</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; color: #333; }
+        .container { max-width: 1200px; margin: 2em auto; background: #fff; padding: 2em; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; margin-bottom: 0.5em; }
+        .subtitle { color: #7f8c8d; margin-bottom: 1.5em; }
+        .group { margin-bottom: 2em; }
+        .group-title { font-weight: bold; font-size: 1.1em; color: #2980b9; border-bottom: 2px solid #2980b9; padding-bottom: 0.3em; margin-bottom: 0.8em; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8em 1.5em; }
+        .field { display: flex; flex-direction: column; }
+        .field label { font-size: 0.85em; color: #555; margin-bottom: 0.2em; }
+        .field input { padding: 0.5em; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; transition: border-color 0.2s; }
+        .field input:focus { outline: none; border-color: #2980b9; box-shadow: 0 0 0 2px rgba(41,128,185,0.2); }
+        button, .btn { display: inline-block; padding: 0.8em 1.5em; background: #2980b9; color: white; border: none; border-radius: 4px; font-size: 1em; cursor: pointer; margin: 0.5em 0; text-decoration: none; }
+        button:hover, .btn:hover { background: #2471a3; }
+        .section { margin-top: 2em; padding-top: 1.5em; border-top: 1px solid #eee; }
+        textarea { width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px; }
+        .result { margin-top: 2em; padding: 1em; background: #ecf0f1; border-left: 5px solid; border-radius: 4px; font-size: 1.2em; }
+        .result.success { border-color: #27ae60; color: #27ae60; }
+        .result.error { border-color: #e74c3c; color: #e74c3c; }
+        table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 0.95em; }
+        th { background: #2980b9; color: white; padding: 0.6em; text-align: left; }
+        td { padding: 0.5em; border-bottom: 1px solid #ddd; }
+        tr:hover { background: #f1f1f1; }
+        .error-msg { color: #e74c3c; }
+        .download-btn { background: #27ae60; }
+        .download-btn:hover { background: #219a52; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Lightweight IDS — Real‑time Inference with CSV Upload</h1>
+    <p class="subtitle">
+        Use the manual fields below, paste a row, or upload a CSV file in the original UNSW‑NB15 format.
+    </p>
+
+    <!-- ========== CSV Upload ========== -->
+    <div class="section">
+        <h2>📁 Upload CSV File (original UNSW‑NB15 format)</h2>
+        <p style="margin-bottom:0.5em;">The file must have the columns: id, dur, proto, service, state, spkts, dpkts, sbytes, dbytes, rate, sttl, dttl, sload, dload, sloss, dloss, sinpkt, dinpkt, sjit, djit, swin, stcpb, dtcpb, dwin, tcprtt, synack, ackdat, smean, dmean, trans_depth, response_body_len, ct_srv_src, ct_state_ttl, ct_dst_ltm, ct_src_dport_ltm, ct_dst_sport_ltm, ct_dst_src_ltm, is_ftp_login, ct_ftp_cmd, ct_flw_http_mthd, ct_src_ltm, ct_srv_dst, is_sm_ips_ports, attack_cat, label.</p>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="csv_file" accept=".csv" required>
+            <button type="submit">Upload & Predict</button>
+        </form>
+    </div>
+
+    {% if csv_results is not none %}
+    <div class="section">
+        <h2>📊 Prediction Results</h2>
+        {% if csv_results and csv_results[0].error is defined and csv_results|length == 1 %}
+            <div class="result error">{{ csv_results[0].error }}</div>
+        {% else %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Row</th>
+                        <th>Prediction</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for res in csv_results %}
+                    <tr>
+                        <td>{{ res.row }}</td>
+                        {% if res.error is defined %}
+                            <td class="error-msg">Error: {{ res.error }}</td>
+                            <td></td>
+                        {% else %}
+                            <td><strong>{{ res.prediction }}</strong></td>
+                            <td>{{ "%.4f"|format(res.confidence) }}</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{{ url_for('download_csv') }}" class="btn download-btn">Download Predictions as CSV</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- ========== Paste row ========== -->
+    <div class="section">
+        <h2>📋 Paste a single CSV row (42 values, without id/attack_cat/label)</h2>
+        <form method="POST">
+            <textarea name="paste_csv_row" rows="2" placeholder="0.121478,tcp,-,FIN,6,4,258,172,74.08749,252,254,..."></textarea>
+            <button type="submit">Predict Row</button>
+        </form>
+    </div>
+
+    <!-- ========== Manual entry ========== -->
+    <div class="section">
+        <h2>🖊️ Manual Feature Entry</h2>
+        <form method="POST">
+            {% for group_name, feat_list in feature_groups.items() %}
+            <div class="group">
+                <div class="group-title">{{ group_name }}</div>
+                <div class="input-grid">
+                    {% for fname in feat_list %}
+                    <div class="field">
+                        <label for="{{ fname }}">{{ fname }}</label>
+                        <input type="text" id="{{ fname }}" name="{{ fname }}" placeholder="0" value="">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            <button type="submit">Predict from Manual Entry</button>
+        </form>
+    </div>
+
+    {% if result %}
+    <div class="result {% if 'Error' in result %}error{% else %}success{% endif %}">
+        <strong>{{ result }}</strong>
+    </div>
+    {% endif %}
+</div>
+</body>
+</html>
