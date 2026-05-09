@@ -20,6 +20,7 @@ except ImportError:
         print("Warning: No TensorFlow or tflite_runtime found. IDS model will not load.")
 
 app = Flask(__name__)
+latest_csv_results = None
 
 # ---------------------- Load artefacts ----------------------
 artifacts_dir = os.path.join(os.path.dirname(__file__), 'artifacts')
@@ -191,6 +192,7 @@ def process_csv_file(file_storage):
 # ---------------------- Routes ----------------------
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    global latest_csv_results
     result = None          # for single prediction display
     csv_results = None     # for CSV upload results
 
@@ -200,8 +202,10 @@ def index():
             file = request.files['csv_file']
             try:
                 csv_results = process_csv_file(file)
+                latest_csv_results = csv_results
             except Exception as e:
                 csv_results = [{'error': str(e)}]
+                latest_csv_results = None
 
         else:
             # Manual entry mode or paste mode
@@ -252,17 +256,23 @@ def api_predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/download_csv', methods=['POST'])
+@app.route('/download_csv', methods=['GET', 'POST'])
 def download_csv():
-    """Generate and download a CSV file with prediction results."""
-    # This endpoint expects the same CSV upload data, but we'll process and return as a downloadable file.
-    if 'csv_file' not in request.files or request.files['csv_file'].filename == '':
-        return "No file uploaded", 400
-    file = request.files['csv_file']
-    try:
-        results = process_csv_file(file)
-    except Exception as e:
-        return f"Error: {e}", 500
+    """Download the latest CSV prediction results, or process an uploaded file."""
+    global latest_csv_results
+
+    # Optional POST mode: upload file directly to this endpoint.
+    if request.method == 'POST' and 'csv_file' in request.files and request.files['csv_file'].filename != '':
+        file = request.files['csv_file']
+        try:
+            latest_csv_results = process_csv_file(file)
+        except Exception as e:
+            return f"Error: {e}", 500
+
+    if not latest_csv_results:
+        return "No prediction results available. Upload and predict a CSV first.", 400
+
+    results = latest_csv_results
 
     # Create an in-memory CSV output
     output = io.StringIO()
