@@ -2,99 +2,968 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>IDS Inference – CSV Upload</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDS Inference Console</title>
     <style>
+        :root {
+            --bg: #0b1220;
+            --panel: #111b31;
+            --panel-soft: #172441;
+            --text: #e8eefc;
+            --text-muted: #a7b5d6;
+            --heading: #ffffff;
+            --primary: #4f7cff;
+            --primary-hover: #3b68ec;
+            --accent: #22d3ee;
+            --success: #22c55e;
+            --danger: #ff5d5d;
+            --border: #273659;
+            --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 14% 8%, rgba(79, 124, 255, 0.16), transparent 24%),
+                radial-gradient(circle at 86% 10%, rgba(34, 211, 238, 0.08), transparent 26%);
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.25rem 1rem 2rem;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            background: rgba(17, 27, 49, 0.82);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            border-radius: 999px;
+            padding: 0.45rem 0.6rem;
+            position: sticky;
+            top: 0.75rem;
+            z-index: 10;
+        }
+
+        .brand-block {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding-left: 0.35rem;
+        }
+
+        .brand-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            box-shadow: 0 0 12px rgba(79, 124, 255, 0.7);
+        }
+
+        .brand-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--text-muted);
+        }
+
+        .topbar-nav {
+            display: flex;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .topbar-nav a {
+            text-decoration: none;
+            color: var(--text);
+            font-size: 0.74rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0.33rem 0.62rem;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .topbar-nav a:hover {
+            border-color: var(--primary);
+            color: #fff;
+            background: rgba(79, 124, 255, 0.2);
+        }
+
+        .hero {
+            background: linear-gradient(145deg, rgba(23, 36, 65, 0.95), rgba(17, 27, 49, 0.92));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.6rem;
+            margin-bottom: 1rem;
+            display: grid;
+            grid-template-columns: 1.4fr 0.8fr;
+            gap: 1rem;
+        }
+
+        .hero h1 {
+            color: var(--heading);
+            font-size: 2rem;
+            line-height: 1.2;
+            margin-bottom: 0.55rem;
+            letter-spacing: -0.01em;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            max-width: 68ch;
+            font-size: 0.96rem;
+        }
+
+        .hero-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.7rem;
+            align-content: start;
+        }
+
+        .meta-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem;
+        }
+
+        .meta-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.22rem;
+        }
+
+        .meta-value {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--heading);
+        }
+
+        .panel-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.1rem;
+        }
+
+        .panel h2 {
+            font-size: 1.02rem;
+            margin-bottom: 0.45rem;
+            color: var(--heading);
+            letter-spacing: 0.01em;
+        }
+
+        .hint {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 0.7rem;
+        }
+
+        code {
+            padding: 0.08rem 0.32rem;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.07);
+            color: #fff;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 0.7rem 0.8rem;
+        }
+
+        .group {
+            background: var(--panel-soft);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.8rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .group-title {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field label {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            margin-bottom: 0.26rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .field input, .file-input, textarea {
+            width: 100%;
+            padding: 0.62rem 0.68rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text);
+        }
+
+        .file-input {
+            padding: 0.45rem;
+        }
+
+        .field input:focus, .file-input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.22);
+        }
+
+        textarea {
+            min-height: 62px;
+            resize: vertical;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.55rem;
+            margin-top: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        button, .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.58rem 0.95rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.84rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.08s ease, background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover, .btn:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 8px 18px rgba(79, 124, 255, 0.26);
+        }
+
+        button:active, .btn:active {
+            transform: translateY(1px);
+        }
+
+        .result {
+            margin-top: 1rem;
+            padding: 0.86rem 0.95rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .result.success {
+            border-color: var(--success);
+            color: #b8ffd0;
+        }
+
+        .result.error {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            min-width: 420px;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            padding: 0.58rem;
+            text-align: left;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.75rem;
+        }
+
+        td {
+            padding: 0.58rem 0.62rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .error-msg {
+            color: var(--danger);
+        }
+
+        .download-btn {
+            background: var(--success);
+            color: #05180d;
+        }
+
+        .download-btn:hover {
+            background: #16a34a;
+            box-shadow: 0 8px 18px rgba(34, 197, 94, 0.3);
+        }
+
+        .manual-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        .manual-meta {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0.28rem 0.72rem;
+            font-weight: 600;
+        }
+
+        .section-anchor {
+            scroll-margin-top: 5rem;
+        }
+
+        @media (max-width: 780px) {
+            .page {
+                padding: 1rem 0.75rem 1.5rem;
+            }
+
+            .topbar {
+                border-radius: 16px;
+                padding: 0.6rem;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+                padding: 1.1rem;
+            }
+
+            .hero h1 {
+                font-size: 1.55rem;
+            }
+
+            .hero-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .input-grid {
+                grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="topbar">
+        <div class="brand-block">
+            <span class="brand-dot"></span>
+            <span class="brand-title">SAG DRDO · IDS Inference Console</span>
+        </div>
+        <div class="topbar-nav">
+            <a href="#upload">Upload</a>
+            <a href="#results">Results</a>
+            <a href="#paste">Paste Row</a>
+            <a href="#manual">Manual Entry</a>
+        </div>
+    </div>
+
+    <div class="hero">
+        <div>
+            <h1>Network Intrusion Detection Inference</h1>
+            <p>
+                Unified interface for UNSW‑NB15 inference workflows. Use this console to upload batch CSV data,
+                validate single-row entries, and run manual feature-level predictions through the deployed model.
+            </p>
+        </div>
+        <div class="hero-meta">
+            <div class="meta-card">
+                <div class="meta-label">Environment</div>
+                <div class="meta-value">Internship Demo</div>
+            </div>
+            <div class="meta-card">
+                <div class="meta-label">Dataset</div>
+                <div class="meta-value">UNSW-NB15</div>
+            </div>
+            <div class="meta-card">
+                <div class="meta-label">Feature Input</div>
+                <div class="meta-value">42 Attributes</div>
+            </div>
+            <div class="meta-card">
+                <div class="meta-label">Output</div>
+                <div class="meta-value">Attack / Normal</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-grid">
+        <!-- ========== CSV Upload ========== -->
+        <div class="panel section-anchor" id="upload">
+            <h2>Upload CSV File (UNSW‑NB15 format)</h2>
+            <p class="hint">The file must include original dataset columns including <code>id</code>, <code>attack_cat</code>, and <code>label</code>.</p>
+            <form method="POST" enctype="multipart/form-data">
+                <input class="file-input" type="file" name="csv_file" accept=".csv" required>
+                <div class="actions">
+                    <button type="submit">Upload & Predict</button>
+                </div>
+            </form>
+        </div>
+
+        {% if csv_results is not none %}
+        <div class="panel section-anchor" id="results">
+            <h2>Prediction Results</h2>
+            {% if csv_results and csv_results[0].error is defined and csv_results|length == 1 %}
+                <div class="result error">{{ csv_results[0].error }}</div>
+            {% else %}
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Row</th>
+                                <th>Prediction</th>
+                                <th>Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for res in csv_results %}
+                            <tr>
+                                <td>{{ res.row }}</td>
+                                {% if res.error is defined %}
+                                    <td class="error-msg">Error: {{ res.error }}</td>
+                                    <td></td>
+                                {% else %}
+                                    <td><strong>{{ res.prediction }}</strong></td>
+                                    <td>{{ "%.4f"|format(res.confidence) }}</td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="actions">
+                    <a href="{{ url_for('download_csv') }}" class="btn download-btn">Download Predictions as CSV</a>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- ========== Paste row ========== -->
+        <div class="panel section-anchor" id="paste">
+            <h2>Paste Single CSV Row (42 values, without id/attack_cat/label)</h2>
+            <p class="hint">Paste the exact model input order as comma-separated values.</p>
+            <form method="POST">
+                <textarea name="paste_csv_row" rows="2" placeholder="0.121478,tcp,-,FIN,6,4,258,172,74.08749,252,254,..."></textarea>
+                <div class="actions">
+                    <button type="submit">Predict Row</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ========== Manual entry ========== -->
+        <div class="panel section-anchor" id="manual">
+            <div class="manual-header">
+                <h2>Manual Feature Entry</h2>
+                <span class="manual-meta">Tip: leave unknown numeric values as 0</span>
+            </div>
+            <form method="POST">
+                {% for group_name, feat_list in feature_groups.items() %}
+                <div class="group">
+                    <div class="group-title">{{ group_name }}</div>
+                    <div class="input-grid">
+                        {% for fname in feat_list %}
+                        <div class="field">
+                            <label for="{{ fname }}">{{ fname }}</label>
+                            <input type="text" id="{{ fname }}" name="{{ fname }}" placeholder="Enter {{ fname }}" value="">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="actions">
+                    <button type="submit">Predict from Manual Entry</button>
+                </div>
+            </form>
+        </div>
+
+        {% if result %}
+        <div class="result {% if 'Error' in result %}error{% else %}success{% endif %}">
+            <strong>{{ result }}</strong>
+        </div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IDS Inference Dashboard</title>
+    <style>
+        :root {
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --text: #1b2430;
+            --title: #111827;
+            --muted: #5b6470;
+            --primary: #1f3b64;
+            --primary-hover: #182f4f;
+            --success: #1f3b64;
+            --danger: #b91c1c;
+            --border: #d7dde7;
+            --section-bg: #ffffff;
+            --group-bg: #ffffff;
+            --group-border: #e0e5ee;
+            --group-title: #1b2430;
+            --group-divider: #e3e8f1;
+            --input-bg: #ffffff;
+            --input-border: #c8d1df;
+            --hint-bg: #f7f9fc;
+            --hint-border: #e2e7f0;
+            --hint-text: #5f6471;
+            --table-header: #1f3b64;
+            --row-hover: #f7faff;
+            --code-bg: #edf2f8;
+            --shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+            --radius: 8px;
+        }
+        body[data-theme="dark"] {
+            --bg: #000000;
+            --card: #0a0a0a;
+            --text: #ffe5e5;
+            --title: #ff4d4d;
+            --muted: #ffb3b3;
+            --primary: #ff0000;
+            --primary-hover: #cc0000;
+            --success: #ff3333;
+            --danger: #ff4d4d;
+            --border: #4d0000;
+            --section-bg: #120000;
+            --group-bg: #1a0000;
+            --group-border: #660000;
+            --group-title: #ff6666;
+            --group-divider: #7a0000;
+            --input-bg: #140000;
+            --input-border: #6b0000;
+            --hint-bg: #1f0000;
+            --hint-border: #750000;
+            --hint-text: #ffb3b3;
+            --table-header: #8f0000;
+            --row-hover: #1f0000;
+            --code-bg: #260000;
+            --shadow: 0 10px 18px rgba(255, 0, 0, 0.18);
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; color: #333; }
-        .container { max-width: 1200px; margin: 2em auto; background: #fff; padding: 2em; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; margin-bottom: 0.5em; }
-        .subtitle { color: #7f8c8d; margin-bottom: 1.5em; }
-        .group { margin-bottom: 2em; }
-        .group-title { font-weight: bold; font-size: 1.1em; color: #2980b9; border-bottom: 2px solid #2980b9; padding-bottom: 0.3em; margin-bottom: 0.8em; }
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8em 1.5em; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+        .container {
+            max-width: 1260px;
+            margin: 2rem auto;
+            background: var(--card);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 2px solid var(--border);
+        }
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .brand {
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+        }
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 0.35rem 0.65rem;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--hint-bg);
+        }
+        .nav-links a:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .hero {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--card);
+        }
+        h1 { color: var(--title); font-size: 1.75rem; margin-bottom: 0.35rem; font-weight: 700; letter-spacing: 0.01em; }
+        .subtitle { color: var(--muted); max-width: 78ch; }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--hint-bg);
+            color: var(--group-title);
+            border: 1px solid var(--hint-border);
+            border-radius: 999px;
+            padding: 0.35rem 0.8rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .hero-right {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+        }
+        .theme-toggle {
+            border: 1px solid var(--hint-border);
+            background: var(--hint-bg);
+            color: var(--text);
+            padding: 0.4rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .theme-toggle:hover {
+            background: var(--group-bg);
+            border-color: var(--primary);
+        }
+        .section {
+            margin-top: 1.2rem;
+            padding: 1.2rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--section-bg);
+            box-shadow: none;
+        }
+        .section h2 {
+            margin-bottom: 0.4rem;
+            color: var(--title);
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+        .hint {
+            color: var(--hint-text);
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+        code {
+            background: var(--code-bg);
+            color: var(--text);
+            padding: 0.05rem 0.35rem;
+            border-radius: 6px;
+        }
+        .group {
+            margin-bottom: 1.25rem;
+            padding: 0.9rem;
+            border: 2px solid var(--group-border);
+            border-radius: var(--radius);
+            background: var(--group-bg);
+        }
+        .group-title {
+            font-weight: 700;
+            font-size: 0.98rem;
+            color: var(--group-title);
+            border-bottom: 2px solid var(--group-divider);
+            padding-bottom: 0.45rem;
+            margin-bottom: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 0.75rem 1rem;
+        }
         .field { display: flex; flex-direction: column; }
-        .field label { font-size: 0.85em; color: #555; margin-bottom: 0.2em; }
-        .field input { padding: 0.5em; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; transition: border-color 0.2s; }
-        .field input:focus { outline: none; border-color: #2980b9; box-shadow: 0 0 0 2px rgba(41,128,185,0.2); }
-        button, .btn { display: inline-block; padding: 0.8em 1.5em; background: #2980b9; color: white; border: none; border-radius: 4px; font-size: 1em; cursor: pointer; margin: 0.5em 0; text-decoration: none; }
-        button:hover, .btn:hover { background: #2471a3; }
-        .section { margin-top: 2em; padding-top: 1.5em; border-top: 1px solid #eee; }
-        textarea { width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px; }
-        .result { margin-top: 2em; padding: 1em; background: #ecf0f1; border-left: 5px solid; border-radius: 4px; font-size: 1.2em; }
-        .result.success { border-color: #27ae60; color: #27ae60; }
-        .result.error { border-color: #e74c3c; color: #e74c3c; }
-        table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 0.95em; }
-        th { background: #2980b9; color: white; padding: 0.6em; text-align: left; }
-        td { padding: 0.5em; border-bottom: 1px solid #ddd; }
-        tr:hover { background: #f1f1f1; }
-        .error-msg { color: #e74c3c; }
-        .download-btn { background: #27ae60; }
-        .download-btn:hover { background: #219a52; }
+        .field label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 0.28rem;
+            font-weight: 500;
+        }
+        .field input, .file-input, textarea {
+            width: 100%;
+            padding: 0.58rem 0.65rem;
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--input-bg);
+            color: var(--text);
+        }
+        .field input:focus, .file-input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.2);
+        }
+        .actions {
+            display: flex;
+            gap: 0.6rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+        button, .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.62rem 1rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.08s ease, background 0.2s ease, box-shadow 0.2s ease;
+        }
+        button:hover, .btn:hover { background: var(--primary-hover); box-shadow: none; }
+        button:active, .btn:active { transform: translateY(1px); }
+        .result {
+            margin-top: 1.2rem;
+            padding: 0.9rem 1rem;
+            background: var(--section-bg);
+            border-left: 5px solid;
+            border-radius: 4px;
+            font-size: 1.02rem;
+            font-weight: 800;
+        }
+        .result.success { border-color: var(--success); color: #15803d; }
+        .result.error { border-color: var(--danger); color: var(--danger); }
+        .table-wrap { width: 100%; overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.8rem 0;
+            font-size: 0.92rem;
+            min-width: 420px;
+        }
+        th {
+            background: var(--table-header);
+            color: #fff;
+            padding: 0.62rem;
+            text-align: left;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        td { padding: 0.58rem 0.62rem; border-bottom: 1px solid var(--border); font-weight: 600; }
+        tr:hover { background: var(--row-hover); }
+        .error-msg { color: var(--danger); }
+        .download-btn { background: var(--success); }
+        .download-btn:hover { background: var(--primary-hover); box-shadow: none; }
+        .manual-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .manual-meta {
+            font-size: 0.84rem;
+            color: var(--hint-text);
+            background: var(--hint-bg);
+            border: 1px solid var(--hint-border);
+            border-radius: 999px;
+            padding: 0.3rem 0.75rem;
+            font-weight: 700;
+        }
+        @media (max-width: 780px) {
+            .container { margin: 1rem; padding: 1rem; }
+            h1 { font-size: 1.45rem; }
+            .section { padding: 0.95rem; }
+            .input-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+            .top-nav { flex-direction: column; align-items: flex-start; }
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Lightweight IDS — Real‑time Inference with CSV Upload</h1>
-    <p class="subtitle">
-        Use the manual fields below, paste a row, or upload a CSV file in the original UNSW‑NB15 format.
-    </p>
+    <div class="top-nav">
+        <div class="brand">SAG DRDO | IDS Inference Dashboard</div>
+        <div class="nav-links">
+            <a href="#upload">Upload</a>
+            <a href="#results">Results</a>
+            <a href="#paste">Paste Row</a>
+            <a href="#manual">Manual Entry</a>
+        </div>
+    </div>
+    <div class="hero">
+        <div>
+            <h1>Lightweight IDS Inference Dashboard</h1>
+            <p class="subtitle">
+                Intrusion detection inference interface for UNSW‑NB15 feature inputs. Upload structured CSV data, paste a single row, or enter features manually for model prediction.
+            </p>
+        </div>
+        <div class="hero-right">
+            <span class="badge">Research Internship Demonstration Interface</span>
+            <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">Enable Dark Mode</button>
+        </div>
+    </div>
 
     <!-- ========== CSV Upload ========== -->
-    <div class="section">
-        <h2>📁 Upload CSV File (original UNSW‑NB15 format)</h2>
-        <p style="margin-bottom:0.5em;">The file must have the columns: id, dur, proto, service, state, spkts, dpkts, sbytes, dbytes, rate, sttl, dttl, sload, dload, sloss, dloss, sinpkt, dinpkt, sjit, djit, swin, stcpb, dtcpb, dwin, tcprtt, synack, ackdat, smean, dmean, trans_depth, response_body_len, ct_srv_src, ct_state_ttl, ct_dst_ltm, ct_src_dport_ltm, ct_dst_sport_ltm, ct_dst_src_ltm, is_ftp_login, ct_ftp_cmd, ct_flw_http_mthd, ct_src_ltm, ct_srv_dst, is_sm_ips_ports, attack_cat, label.</p>
+    <div class="section" id="upload">
+        <h2>Upload CSV File (UNSW‑NB15 format)</h2>
+        <p class="hint">The file must include original dataset columns including <code>id</code>, <code>attack_cat</code>, and <code>label</code>.</p>
         <form method="POST" enctype="multipart/form-data">
-            <input type="file" name="csv_file" accept=".csv" required>
-            <button type="submit">Upload & Predict</button>
+            <input class="file-input" type="file" name="csv_file" accept=".csv" required>
+            <div class="actions">
+                <button type="submit">Upload & Predict</button>
+            </div>
         </form>
     </div>
 
     {% if csv_results is not none %}
-    <div class="section">
-        <h2>📊 Prediction Results</h2>
+    <div class="section" id="results">
+        <h2>Prediction Results</h2>
         {% if csv_results and csv_results[0].error is defined and csv_results|length == 1 %}
             <div class="result error">{{ csv_results[0].error }}</div>
         {% else %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Row</th>
-                        <th>Prediction</th>
-                        <th>Confidence</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for res in csv_results %}
-                    <tr>
-                        <td>{{ res.row }}</td>
-                        {% if res.error is defined %}
-                            <td class="error-msg">Error: {{ res.error }}</td>
-                            <td></td>
-                        {% else %}
-                            <td><strong>{{ res.prediction }}</strong></td>
-                            <td>{{ "%.4f"|format(res.confidence) }}</td>
-                        {% endif %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <a href="{{ url_for('download_csv') }}" class="btn download-btn">Download Predictions as CSV</a>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Row</th>
+                            <th>Prediction</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for res in csv_results %}
+                        <tr>
+                            <td>{{ res.row }}</td>
+                            {% if res.error is defined %}
+                                <td class="error-msg">Error: {{ res.error }}</td>
+                                <td></td>
+                            {% else %}
+                                <td><strong>{{ res.prediction }}</strong></td>
+                                <td>{{ "%.4f"|format(res.confidence) }}</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="actions">
+                <a href="{{ url_for('download_csv') }}" class="btn download-btn">Download Predictions as CSV</a>
+            </div>
         {% endif %}
     </div>
     {% endif %}
 
     <!-- ========== Paste row ========== -->
-    <div class="section">
-        <h2>📋 Paste a single CSV row (42 values, without id/attack_cat/label)</h2>
+    <div class="section" id="paste">
+        <h2>Paste Single CSV Row (42 values, without id/attack_cat/label)</h2>
+        <p class="hint">Paste the exact model input order as comma-separated values.</p>
         <form method="POST">
             <textarea name="paste_csv_row" rows="2" placeholder="0.121478,tcp,-,FIN,6,4,258,172,74.08749,252,254,..."></textarea>
-            <button type="submit">Predict Row</button>
+            <div class="actions">
+                <button type="submit">Predict Row</button>
+            </div>
         </form>
     </div>
 
     <!-- ========== Manual entry ========== -->
-    <div class="section">
-        <h2>🖊️ Manual Feature Entry</h2>
+    <div class="section" id="manual">
+        <div class="manual-header">
+            <h2>Manual Feature Entry</h2>
+            <span class="manual-meta">Tip: leave unknown numeric values as 0</span>
+        </div>
         <form method="POST">
             {% for group_name, feat_list in feature_groups.items() %}
             <div class="group">
@@ -103,13 +972,15 @@
                     {% for fname in feat_list %}
                     <div class="field">
                         <label for="{{ fname }}">{{ fname }}</label>
-                        <input type="text" id="{{ fname }}" name="{{ fname }}" placeholder="0" value="">
+                        <input type="text" id="{{ fname }}" name="{{ fname }}" placeholder="Enter {{ fname }}" value="">
                     </div>
                     {% endfor %}
                 </div>
             </div>
             {% endfor %}
-            <button type="submit">Predict from Manual Entry</button>
+            <div class="actions">
+                <button type="submit">Predict from Manual Entry</button>
+            </div>
         </form>
     </div>
 
@@ -119,5 +990,31 @@
     </div>
     {% endif %}
 </div>
+<script>
+    (function () {
+        var toggleButton = document.getElementById('themeToggle');
+        var body = document.body;
+        var storageKey = 'ids-theme';
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                body.setAttribute('data-theme', 'dark');
+                toggleButton.textContent = 'Disable Dark Mode';
+            } else {
+                body.removeAttribute('data-theme');
+                toggleButton.textContent = 'Enable Dark Mode';
+            }
+        }
+
+        var savedTheme = localStorage.getItem(storageKey) || 'light';
+        applyTheme(savedTheme);
+
+        toggleButton.addEventListener('click', function () {
+            var nextTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem(storageKey, nextTheme);
+            applyTheme(nextTheme);
+        });
+    })();
+</script>
 </body>
 </html>
