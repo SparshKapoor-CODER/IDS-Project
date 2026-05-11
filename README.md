@@ -256,4 +256,5 @@ Key papers in the `Papers/` folder:
 ---
 
 *Internship at Scientific Analysis Group (SAG), DRDO, Ministry of Defence | May 2026*
+
 *Sparsh Kapoor (24BAI10017) | VIT Bhopal University*
