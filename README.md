@@ -1,6 +1,6 @@
 # Edge-Optimized Intrusion Detection System
-### SAG–DRDO Internship Project | May 2026
-**Scientific Analysis Group (SAG), DRDO, Ministry of Defence**
+### Edge IDS Internship Project | May 2026
+**Research Internship Project**
 
 > A lightweight neural network IDS trained on UNSW-NB15 and Edge-IIoTset, compressed via pruning and INT8 quantization, and deployed as a real-time TFLite inference engine with a Flask web interface — targeting resource-constrained edge devices.
 
@@ -89,7 +89,7 @@ Model converges stably by ~60 epochs, reaching ~96.5% validation accuracy with n
 ## Repository Structure
 
 ```
-SAG-Internship-Project/
+project-root/
 │
 ├── Data Analysis/
 │   ├── analyse.ipynb              # Initial EDA, feature distributions, correlations
@@ -174,8 +174,8 @@ This project uses two public network intrusion datasets. **Download them separat
 ## Setup & Installation
 
 ```bash
-git clone https://github.com/SparshKapoor-CODER/SAG-Internship-Project.git
-cd SAG-Internship-Project
+git clone <repository-url>
+cd <project-directory>
 pip install -r requirements.txt
 ```
 
@@ -255,6 +255,6 @@ Key papers in the `Papers/` folder:
 
 ---
 
-*Internship at Scientific Analysis Group (SAG), DRDO, Ministry of Defence | May 2026*
+*Research internship project | May 2026*
 
 *Sparsh Kapoor (24BAI10017) | VIT Bhopal University*

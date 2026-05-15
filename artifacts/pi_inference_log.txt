@@ -1,6 +1,6 @@
 ============================================================
   RASPBERRY PI DEPLOYMENT REPORT
-  SAG-DRDO Internship | UNSW-NB15 IDS
+  Edge IDS Internship | UNSW-NB15 IDS
 ============================================================
   Device      : AMD64 / Windows
   TFLite from : tensorflow
