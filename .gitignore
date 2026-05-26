@@ -2,3 +2,4 @@ data/
 *.zip
 *.exe
 .venv-tf/
+pcap/

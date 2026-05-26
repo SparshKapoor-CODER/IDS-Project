@@ -2,919 +2,402 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IDS Inference Console</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>IDS Inference Console | Network Intrusion Detection</title>
     <style>
-        :root {
-            --bg: #0b1220;
-            --panel: #111b31;
-            --panel-soft: #172441;
-            --text: #e8eefc;
-            --text-muted: #a7b5d6;
-            --heading: #ffffff;
-            --primary: #4f7cff;
-            --primary-hover: #3b68ec;
-            --accent: #22d3ee;
-            --success: #22c55e;
-            --danger: #ff5d5d;
-            --border: #273659;
-            --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-            --radius: 14px;
-        }
-
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Light theme (default) */
+        :root {
+            --bg: #f6f9fc;
+            --surface: #ffffff;
+            --surface-2: #f8fafc;
+            --text: #0f172a;
+            --text-muted: #475569;
+            --border: #e2e8f0;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius: 1rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+        }
+
+        /* Dark theme */
+        [data-theme="dark"] {
+            --bg: #0a0c10;
+            --surface: #111316;
+            --surface-2: #181b22;
+            --text: #eef2ff;
+            --text-muted: #9ca3af;
+            --border: #2d313a;
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #34d399;
+            --danger: #f87171;
+            --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--bg);
             color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
             line-height: 1.5;
-            min-height: 100vh;
-            background-image:
-                radial-gradient(circle at 14% 8%, rgba(79, 124, 255, 0.16), transparent 24%),
-                radial-gradient(circle at 86% 10%, rgba(34, 211, 238, 0.08), transparent 26%);
+            transition: background 0.2s ease, color 0.2s ease;
+            padding: 2rem 1rem;
         }
 
-        .page {
-            max-width: 1200px;
+        .container {
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 1.25rem 1rem 2rem;
         }
 
-        .topbar {
+        /* Header */
+        .header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 1rem;
-            background: rgba(17, 27, 49, 0.82);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(8px);
-            border-radius: 999px;
-            padding: 0.45rem 0.6rem;
-            position: sticky;
-            top: 0.75rem;
-            z-index: 10;
-        }
-
-        .brand-block {
-            display: flex;
             align-items: center;
-            gap: 0.6rem;
-            padding-left: 0.35rem;
-        }
-
-        .brand-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            box-shadow: 0 0 12px rgba(79, 124, 255, 0.7);
-        }
-
-        .brand-title {
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.09em;
-            color: var(--text-muted);
-        }
-
-        .topbar-nav {
-            display: flex;
-            gap: 0.35rem;
             flex-wrap: wrap;
-        }
-
-        .topbar-nav a {
-            text-decoration: none;
-            color: var(--text);
-            font-size: 0.74rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            padding: 0.33rem 0.62rem;
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .topbar-nav a:hover {
-            border-color: var(--primary);
-            color: #fff;
-            background: rgba(79, 124, 255, 0.2);
-        }
-
-        .hero {
-            background: linear-gradient(145deg, rgba(23, 36, 65, 0.95), rgba(17, 27, 49, 0.92));
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 1.6rem;
-            margin-bottom: 1rem;
-            display: grid;
-            grid-template-columns: 1.4fr 0.8fr;
             gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        .hero h1 {
-            color: var(--heading);
-            font-size: 2rem;
-            line-height: 1.2;
-            margin-bottom: 0.55rem;
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
             letter-spacing: -0.01em;
         }
 
-        .hero p {
+        .logo p {
+            font-size: 0.85rem;
             color: var(--text-muted);
-            max-width: 68ch;
-            font-size: 0.96rem;
         }
 
-        .hero-meta {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 0.7rem;
-            align-content: start;
-        }
-
-        .meta-card {
-            background: rgba(255, 255, 255, 0.03);
+        .theme-toggle {
+            background: var(--surface-2);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 0.75rem;
+            border-radius: 2rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--text);
+            transition: all 0.2s;
         }
 
-        .meta-label {
-            font-size: 0.72rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 0.22rem;
+        .theme-toggle:hover {
+            background: var(--border);
         }
 
-        .meta-value {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: var(--heading);
-        }
-
-        .panel-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-
-        .panel {
-            background: var(--panel);
+        /* Cards */
+        .card {
+            background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 1.1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s;
         }
 
-        .panel h2 {
-            font-size: 1.02rem;
-            margin-bottom: 0.45rem;
-            color: var(--heading);
-            letter-spacing: 0.01em;
+        .card:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .badge {
+            background: var(--surface-2);
+            border-radius: 2rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
         }
 
         .hint {
-            font-size: 0.88rem;
             color: var(--text-muted);
-            margin-bottom: 0.7rem;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
         }
 
-        code {
-            padding: 0.08rem 0.32rem;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.07);
-            color: #fff;
+        /* Forms */
+        .file-input {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: var(--text);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .file-input::file-selector-button {
+            background: var(--primary);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 500;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+        }
+
+        .feature-group {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--surface-2);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+        }
+
+        .feature-group h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            color: var(--text-muted);
         }
 
         .input-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-            gap: 0.7rem 0.8rem;
-        }
-
-        .group {
-            background: var(--panel-soft);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 0.8rem;
-            margin-bottom: 0.85rem;
-        }
-
-        .group-title {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            margin-bottom: 0.62rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-weight: 700;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
         }
 
         .field {
             display: flex;
             flex-direction: column;
+            gap: 0.25rem;
         }
 
         .field label {
-            font-size: 0.76rem;
-            color: var(--text-muted);
-            margin-bottom: 0.26rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-        }
-
-        .field input, .file-input, textarea {
-            width: 100%;
-            padding: 0.62rem 0.68rem;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 0.9rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--text);
-        }
-
-        .file-input {
-            padding: 0.45rem;
-        }
-
-        .field input:focus, .file-input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.22);
-        }
-
-        textarea {
-            min-height: 62px;
-            resize: vertical;
-        }
-
-        .actions {
-            display: flex;
-            gap: 0.55rem;
-            margin-top: 0.7rem;
-            flex-wrap: wrap;
-        }
-
-        button, .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.4rem;
-            padding: 0.58rem 0.95rem;
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.84rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.08s ease, background 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        button:hover, .btn:hover {
-            background: var(--primary-hover);
-            box-shadow: 0 8px 18px rgba(79, 124, 255, 0.26);
-        }
-
-        button:active, .btn:active {
-            transform: translateY(1px);
-        }
-
-        .result {
-            margin-top: 1rem;
-            padding: 0.86rem 0.95rem;
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 4px solid;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            font-weight: 700;
-        }
-
-        .result.success {
-            border-color: var(--success);
-            color: #b8ffd0;
-        }
-
-        .result.error {
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-
-        .table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.88rem;
-            min-width: 420px;
-        }
-
-        th {
-            background: rgba(255, 255, 255, 0.06);
-            color: #fff;
-            padding: 0.58rem;
-            text-align: left;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
             font-size: 0.75rem;
-        }
-
-        td {
-            padding: 0.58rem 0.62rem;
-            border-bottom: 1px solid var(--border);
-            color: var(--text);
-        }
-
-        tr:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .error-msg {
-            color: var(--danger);
-        }
-
-        .download-btn {
-            background: var(--success);
-            color: #05180d;
-        }
-
-        .download-btn:hover {
-            background: #16a34a;
-            box-shadow: 0 8px 18px rgba(34, 197, 94, 0.3);
-        }
-
-        .manual-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.5rem;
-            margin-bottom: 0.7rem;
-            flex-wrap: wrap;
-        }
-
-        .manual-meta {
-            font-size: 0.76rem;
-            color: var(--text-muted);
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 0.28rem 0.72rem;
-            font-weight: 600;
-        }
-
-        .section-anchor {
-            scroll-margin-top: 5rem;
-        }
-
-        @media (max-width: 780px) {
-            .page {
-                padding: 1rem 0.75rem 1.5rem;
-            }
-
-            .topbar {
-                border-radius: 16px;
-                padding: 0.6rem;
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .hero {
-                grid-template-columns: 1fr;
-                padding: 1.1rem;
-            }
-
-            .hero h1 {
-                font-size: 1.55rem;
-            }
-
-            .hero-meta {
-                grid-template-columns: 1fr;
-            }
-
-            .input-grid {
-                grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-            }
-        }
-    </style>
-</head>
-<body>
-<div class="page">
-    <div class="topbar">
-        <div class="brand-block">
-            <span class="brand-dot"></span>
-            <span class="brand-title">Edge IDS · IDS Inference Console</span>
-        </div>
-        <div class="topbar-nav">
-            <a href="#upload">Upload</a>
-            <a href="#results">Results</a>
-            <a href="#paste">Paste Row</a>
-            <a href="#manual">Manual Entry</a>
-        </div>
-    </div>
-
-    <div class="hero">
-        <div>
-            <h1>Network Intrusion Detection Inference</h1>
-            <p>
-                Unified interface for UNSW‑NB15 inference workflows. Use this console to upload batch CSV data,
-                validate single-row entries, and run manual feature-level predictions through the deployed model.
-            </p>
-        </div>
-        <div class="hero-meta">
-            <div class="meta-card">
-                <div class="meta-label">Environment</div>
-                <div class="meta-value">Internship Demo</div>
-            </div>
-            <div class="meta-card">
-                <div class="meta-label">Dataset</div>
-                <div class="meta-value">UNSW-NB15</div>
-            </div>
-            <div class="meta-card">
-                <div class="meta-label">Feature Input</div>
-                <div class="meta-value">42 Attributes</div>
-            </div>
-            <div class="meta-card">
-                <div class="meta-label">Output</div>
-                <div class="meta-value">Attack / Normal</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="panel-grid">
-        <!-- ========== CSV Upload ========== -->
-        <div class="panel section-anchor" id="upload">
-            <h2>Upload CSV File (UNSW‑NB15 format)</h2>
-            <p class="hint">The file must include original dataset columns including <code>id</code>, <code>attack_cat</code>, and <code>label</code>.</p>
-            <form method="POST" enctype="multipart/form-data">
-                <input class="file-input" type="file" name="csv_file" accept=".csv" required>
-                <div class="actions">
-                    <button type="submit">Upload & Predict</button>
-                </div>
-            </form>
-        </div>
-
-        {% if csv_results is not none %}
-        <div class="panel section-anchor" id="results">
-            <h2>Prediction Results</h2>
-            {% if csv_results and csv_results[0].error is defined and csv_results|length == 1 %}
-                <div class="result error">{{ csv_results[0].error }}</div>
-            {% else %}
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Row</th>
-                                <th>Prediction</th>
-                                <th>Confidence</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for res in csv_results %}
-                            <tr>
-                                <td>{{ res.row }}</td>
-                                {% if res.error is defined %}
-                                    <td class="error-msg">Error: {{ res.error }}</td>
-                                    <td></td>
-                                {% else %}
-                                    <td><strong>{{ res.prediction }}</strong></td>
-                                    <td>{{ "%.4f"|format(res.confidence) }}</td>
-                                {% endif %}
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="actions">
-                    <a href="{{ url_for('download_csv') }}" class="btn download-btn">Download Predictions as CSV</a>
-                </div>
-            {% endif %}
-        </div>
-        {% endif %}
-
-        <!-- ========== Paste row ========== -->
-        <div class="panel section-anchor" id="paste">
-            <h2>Paste Single CSV Row (42 values, without id/attack_cat/label)</h2>
-            <p class="hint">Paste the exact model input order as comma-separated values.</p>
-            <form method="POST">
-                <textarea name="paste_csv_row" rows="2" placeholder="0.121478,tcp,-,FIN,6,4,258,172,74.08749,252,254,..."></textarea>
-                <div class="actions">
-                    <button type="submit">Predict Row</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- ========== Manual entry ========== -->
-        <div class="panel section-anchor" id="manual">
-            <div class="manual-header">
-                <h2>Manual Feature Entry</h2>
-                <span class="manual-meta">Tip: leave unknown numeric values as 0</span>
-            </div>
-            <form method="POST">
-                {% for group_name, feat_list in feature_groups.items() %}
-                <div class="group">
-                    <div class="group-title">{{ group_name }}</div>
-                    <div class="input-grid">
-                        {% for fname in feat_list %}
-                        <div class="field">
-                            <label for="{{ fname }}">{{ fname }}</label>
-                            <input type="text" id="{{ fname }}" name="{{ fname }}" placeholder="Enter {{ fname }}" value="">
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endfor %}
-                <div class="actions">
-                    <button type="submit">Predict from Manual Entry</button>
-                </div>
-            </form>
-        </div>
-
-        {% if result %}
-        <div class="result {% if 'Error' in result %}error{% else %}success{% endif %}">
-            <strong>{{ result }}</strong>
-        </div>
-        {% endif %}
-    </div>
-</div>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>IDS Inference Dashboard</title>
-    <style>
-        :root {
-            --bg: #f4f6f9;
-            --card: #ffffff;
-            --text: #1b2430;
-            --title: #111827;
-            --muted: #5b6470;
-            --primary: #1f3b64;
-            --primary-hover: #182f4f;
-            --success: #1f3b64;
-            --danger: #b91c1c;
-            --border: #d7dde7;
-            --section-bg: #ffffff;
-            --group-bg: #ffffff;
-            --group-border: #e0e5ee;
-            --group-title: #1b2430;
-            --group-divider: #e3e8f1;
-            --input-bg: #ffffff;
-            --input-border: #c8d1df;
-            --hint-bg: #f7f9fc;
-            --hint-border: #e2e7f0;
-            --hint-text: #5f6471;
-            --table-header: #1f3b64;
-            --row-hover: #f7faff;
-            --code-bg: #edf2f8;
-            --shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-            --radius: 8px;
-        }
-        body[data-theme="dark"] {
-            --bg: #000000;
-            --card: #0a0a0a;
-            --text: #ffe5e5;
-            --title: #ff4d4d;
-            --muted: #ffb3b3;
-            --primary: #ff0000;
-            --primary-hover: #cc0000;
-            --success: #ff3333;
-            --danger: #ff4d4d;
-            --border: #4d0000;
-            --section-bg: #120000;
-            --group-bg: #1a0000;
-            --group-border: #660000;
-            --group-title: #ff6666;
-            --group-divider: #7a0000;
-            --input-bg: #140000;
-            --input-border: #6b0000;
-            --hint-bg: #1f0000;
-            --hint-border: #750000;
-            --hint-text: #ffb3b3;
-            --table-header: #8f0000;
-            --row-hover: #1f0000;
-            --code-bg: #260000;
-            --shadow: 0 10px 18px rgba(255, 0, 0, 0.18);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.5;
-            transition: background 0.25s ease, color 0.25s ease;
-        }
-        .container {
-            max-width: 1260px;
-            margin: 2rem auto;
-            background: var(--card);
-            padding: 2rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border: 2px solid var(--border);
-        }
-        .top-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-bottom: 1.2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-        .brand {
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            font-size: 0.82rem;
-            text-transform: uppercase;
-        }
-        .nav-links {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .nav-links a {
-            color: var(--text);
-            text-decoration: none;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            padding: 0.35rem 0.65rem;
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            background: var(--hint-bg);
-        }
-        .nav-links a:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-        .hero {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            padding: 1.2rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--card);
-        }
-        h1 { color: var(--title); font-size: 1.75rem; margin-bottom: 0.35rem; font-weight: 700; letter-spacing: 0.01em; }
-        .subtitle { color: var(--muted); max-width: 78ch; }
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            background: var(--hint-bg);
-            color: var(--group-title);
-            border: 1px solid var(--hint-border);
-            border-radius: 999px;
-            padding: 0.35rem 0.8rem;
-            font-size: 0.82rem;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        .hero-right {
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-            flex-wrap: wrap;
-        }
-        .theme-toggle {
-            border: 1px solid var(--hint-border);
-            background: var(--hint-bg);
-            color: var(--text);
-            padding: 0.4rem 0.8rem;
-            border-radius: 999px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s ease, border-color 0.2s ease;
-        }
-        .theme-toggle:hover {
-            background: var(--group-bg);
-            border-color: var(--primary);
-        }
-        .section {
-            margin-top: 1.2rem;
-            padding: 1.2rem;
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--section-bg);
-            box-shadow: none;
-        }
-        .section h2 {
-            margin-bottom: 0.4rem;
-            color: var(--title);
-            font-size: 1.15rem;
-            font-weight: 700;
-            letter-spacing: 0.01em;
-        }
-        .hint {
-            color: var(--hint-text);
-            margin-bottom: 0.8rem;
-            font-size: 0.9rem;
-        }
-        code {
-            background: var(--code-bg);
-            color: var(--text);
-            padding: 0.05rem 0.35rem;
-            border-radius: 6px;
-        }
-        .group {
-            margin-bottom: 1.25rem;
-            padding: 0.9rem;
-            border: 2px solid var(--group-border);
-            border-radius: var(--radius);
-            background: var(--group-bg);
-        }
-        .group-title {
-            font-weight: 700;
-            font-size: 0.98rem;
-            color: var(--group-title);
-            border-bottom: 2px solid var(--group-divider);
-            padding-bottom: 0.45rem;
-            margin-bottom: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-        .input-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-            gap: 0.75rem 1rem;
-        }
-        .field { display: flex; flex-direction: column; }
-        .field label {
-            font-size: 0.8rem;
-            color: var(--muted);
-            margin-bottom: 0.28rem;
             font-weight: 500;
-        }
-        .field input, .file-input, textarea {
-            width: 100%;
-            padding: 0.58rem 0.65rem;
-            border: 1px solid var(--input-border);
-            border-radius: 4px;
-            font-size: 0.9rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background: var(--input-bg);
-            color: var(--text);
-        }
-        .field input:focus, .file-input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.2);
-        }
-        .actions {
-            display: flex;
-            gap: 0.6rem;
-            margin-top: 0.75rem;
-            flex-wrap: wrap;
-        }
-        button, .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.35rem;
-            padding: 0.62rem 1rem;
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 0.92rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            text-transform: uppercase;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.08s ease, background 0.2s ease, box-shadow 0.2s ease;
-        }
-        button:hover, .btn:hover { background: var(--primary-hover); box-shadow: none; }
-        button:active, .btn:active { transform: translateY(1px); }
-        .result {
-            margin-top: 1.2rem;
-            padding: 0.9rem 1rem;
-            background: var(--section-bg);
-            border-left: 5px solid;
-            border-radius: 4px;
-            font-size: 1.02rem;
-            font-weight: 800;
-        }
-        .result.success { border-color: var(--success); color: #15803d; }
-        .result.error { border-color: var(--danger); color: var(--danger); }
-        .table-wrap { width: 100%; overflow-x: auto; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0.8rem 0;
-            font-size: 0.92rem;
-            min-width: 420px;
-        }
-        th {
-            background: var(--table-header);
-            color: #fff;
-            padding: 0.62rem;
-            text-align: left;
-            font-weight: 800;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.03em;
         }
-        td { padding: 0.58rem 0.62rem; border-bottom: 1px solid var(--border); font-weight: 600; }
-        tr:hover { background: var(--row-hover); }
-        .error-msg { color: var(--danger); }
-        .download-btn { background: var(--success); }
-        .download-btn:hover { background: var(--primary-hover); box-shadow: none; }
-        .manual-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            margin-bottom: 0.8rem;
-            flex-wrap: wrap;
+
+        .field input {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.6rem 0.75rem;
+            color: var(--text);
+            font-size: 0.85rem;
+            transition: border 0.2s;
         }
-        .manual-meta {
-            font-size: 0.84rem;
-            color: var(--hint-text);
-            background: var(--hint-bg);
-            border: 1px solid var(--hint-border);
-            border-radius: 999px;
-            padding: 0.3rem 0.75rem;
+
+        .field input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        button, .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.6rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover, .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--surface-2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+            transform: none;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        /* Results table */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem;
+            background: var(--surface-2);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: var(--surface-2);
+        }
+
+        .prediction-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
             font-weight: 700;
         }
-        @media (max-width: 780px) {
-            .container { margin: 1rem; padding: 1rem; }
-            h1 { font-size: 1.45rem; }
-            .section { padding: 0.95rem; }
-            .input-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-            .top-nav { flex-direction: column; align-items: flex-start; }
+
+        .prediction-attack {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .prediction-normal {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .result-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid;
+        }
+
+        .result-box.success {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .result-box.error {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            .card {
+                padding: 1rem;
+            }
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="top-nav">
-        <div class="brand">Edge IDS | IDS Inference Dashboard</div>
-        <div class="nav-links">
-            <a href="#upload">Upload</a>
-            <a href="#results">Results</a>
-            <a href="#paste">Paste Row</a>
-            <a href="#manual">Manual Entry</a>
+    <div class="header">
+        <div class="logo">
+            <h1>🛡️ IDS Inference Console</h1>
+            <p>UNSW‑NB15 · Real‑time Intrusion Detection</p>
         </div>
-    </div>
-    <div class="hero">
-        <div>
-            <h1>Lightweight IDS Inference Dashboard</h1>
-            <p class="subtitle">
-                Intrusion detection inference interface for UNSW‑NB15 feature inputs. Upload structured CSV data, paste a single row, or enter features manually for model prediction.
-            </p>
-        </div>
-        <div class="hero-right">
-            <span class="badge">Research Internship Demonstration Interface</span>
-            <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">Enable Dark Mode</button>
-        </div>
+        <button class="theme-toggle" id="themeToggle" aria-label="Dark mode">🌙 Dark Mode</button>
     </div>
 
-    <!-- ========== CSV Upload ========== -->
-    <div class="section" id="upload">
-        <h2>Upload CSV File (UNSW‑NB15 format)</h2>
-        <p class="hint">The file must include original dataset columns including <code>id</code>, <code>attack_cat</code>, and <code>label</code>.</p>
+    <!-- ========================== CSV Upload ========================== -->
+    <div class="card" id="upload">
+        <div class="card-header">
+            <h2>📂 Upload CSV File</h2>
+            <span class="badge">Batch inference</span>
+        </div>
+        <p class="hint">Upload a CSV file with original UNSW‑NB15 columns (<code>id</code>, <code>attack_cat</code>, <code>label</code>, plus all 42 features). The model will predict each row.</p>
         <form method="POST" enctype="multipart/form-data">
             <input class="file-input" type="file" name="csv_file" accept=".csv" required>
-            <div class="actions">
-                <button type="submit">Upload & Predict</button>
+            <div class="btn-group">
+                <button type="submit">🚀 Upload & Predict</button>
             </div>
         </form>
     </div>
 
+    <!-- ========================== CSV Results ========================== -->
     {% if csv_results is not none %}
-    <div class="section" id="results">
-        <h2>Prediction Results</h2>
+    <div class="card" id="results">
+        <div class="card-header">
+            <h2>📊 Prediction Results</h2>
+            <span class="badge">{{ csv_results|length }} flows</span>
+        </div>
+
         {% if csv_results and csv_results[0].error is defined and csv_results|length == 1 %}
-            <div class="result error">{{ csv_results[0].error }}</div>
+            <div class="result-box error">
+                ❌ <strong>Error:</strong> {{ csv_results[0].error }}
+            </div>
         {% else %}
-            <div class="table-wrap">
+            <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
@@ -928,10 +411,13 @@
                         <tr>
                             <td>{{ res.row }}</td>
                             {% if res.error is defined %}
-                                <td class="error-msg">Error: {{ res.error }}</td>
-                                <td></td>
+                                <td colspan="2" class="result-box error" style="border-left: none;">Error: {{ res.error }}</td>
                             {% else %}
-                                <td><strong>{{ res.prediction }}</strong></td>
+                                <td>
+                                    <span class="prediction-badge {% if res.prediction == 'Attack' %}prediction-attack{% else %}prediction-normal{% endif %}">
+                                        {{ res.prediction }}
+                                    </span>
+                                </td>
                                 <td>{{ "%.4f"|format(res.confidence) }}</td>
                             {% endif %}
                         </tr>
@@ -939,80 +425,97 @@
                     </tbody>
                 </table>
             </div>
-            <div class="actions">
-                <a href="{{ url_for('download_csv') }}" class="btn download-btn">Download Predictions as CSV</a>
+            <div class="btn-group">
+                <a href="{{ url_for('download_csv') }}" class="btn btn-success">⬇️ Download Predictions CSV</a>
             </div>
         {% endif %}
     </div>
     {% endif %}
 
-    <!-- ========== Paste row ========== -->
-    <div class="section" id="paste">
-        <h2>Paste Single CSV Row (42 values, without id/attack_cat/label)</h2>
-        <p class="hint">Paste the exact model input order as comma-separated values.</p>
+    <!-- ========================== Paste single row ========================== -->
+    <div class="card" id="paste">
+        <div class="card-header">
+            <h2>📋 Paste Single CSV Row</h2>
+            <span class="badge">Quick test</span>
+        </div>
+        <p class="hint">Paste a comma‑separated row with exactly <strong>42 numerical/categorical values</strong> (order as in training, without <code>id</code>/<code>attack_cat</code>/<code>label</code>).</p>
         <form method="POST">
-            <textarea name="paste_csv_row" rows="2" placeholder="0.121478,tcp,-,FIN,6,4,258,172,74.08749,252,254,..."></textarea>
-            <div class="actions">
-                <button type="submit">Predict Row</button>
+            <textarea name="paste_csv_row" rows="3" placeholder="Example: 0.0,tcp,http,CON,10,8,816,1172,17.2786,62,252,5976.38,8342.53,2,2,109.319,124.933,5929.21,192.59,255,794167371,1624757001,255,0.2066,0.1084,0.0982,82,147,1,184,2,1,1,1,1,2,0,0,1,1,3,0"></textarea>
+            <div class="btn-group">
+                <button type="submit">🔍 Predict Row</button>
             </div>
         </form>
     </div>
 
-    <!-- ========== Manual entry ========== -->
-    <div class="section" id="manual">
-        <div class="manual-header">
-            <h2>Manual Feature Entry</h2>
-            <span class="manual-meta">Tip: leave unknown numeric values as 0</span>
+    <!-- ========================== Manual Feature Entry ========================== -->
+    <div class="card" id="manual">
+        <div class="card-header">
+            <h2>✍️ Manual Feature Entry</h2>
+            <span class="badge">Expert mode</span>
         </div>
+        <p class="hint">Enter each feature manually. Leave numeric fields as <code>0</code> if unknown. Categorical values must match training set (e.g., <code>tcp</code>, <code>http</code>, <code>FIN</code>).</p>
         <form method="POST">
             {% for group_name, feat_list in feature_groups.items() %}
-            <div class="group">
-                <div class="group-title">{{ group_name }}</div>
+            <div class="feature-group">
+                <h3>{{ group_name }}</h3>
                 <div class="input-grid">
                     {% for fname in feat_list %}
                     <div class="field">
                         <label for="{{ fname }}">{{ fname }}</label>
-                        <input type="text" id="{{ fname }}" name="{{ fname }}" placeholder="Enter {{ fname }}" value="">
+                        <input type="text" id="{{ fname }}" name="{{ fname }}" placeholder="e.g., 0.0" value="">
                     </div>
                     {% endfor %}
                 </div>
             </div>
             {% endfor %}
-            <div class="actions">
-                <button type="submit">Predict from Manual Entry</button>
+            <div class="btn-group">
+                <button type="submit">🧠 Predict from Manual Entry</button>
             </div>
         </form>
     </div>
 
+    <!-- ========================== Single result display ========================== -->
     {% if result %}
-    <div class="result {% if 'Error' in result %}error{% else %}success{% endif %}">
-        <strong>{{ result }}</strong>
+    <div class="card">
+        <div class="result-box {% if 'Error' in result %}error{% else %}success{% endif %}">
+            {% if 'Error' in result %}
+                ❌ <strong>{{ result }}</strong>
+            {% else %}
+                ✅ <strong>{{ result }}</strong>
+            {% endif %}
+        </div>
     </div>
     {% endif %}
 </div>
-<script>
-    (function () {
-        var toggleButton = document.getElementById('themeToggle');
-        var body = document.body;
-        var storageKey = 'ids-theme';
 
-        function applyTheme(theme) {
-            if (theme === 'dark') {
-                body.setAttribute('data-theme', 'dark');
-                toggleButton.textContent = 'Disable Dark Mode';
-            } else {
-                body.removeAttribute('data-theme');
-                toggleButton.textContent = 'Enable Dark Mode';
-            }
+<script>
+    (function() {
+        const toggleBtn = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Get stored theme or system preference
+        const stored = localStorage.getItem('ids-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const initial = stored || (prefersDark ? 'dark' : 'light');
+
+        if (initial === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            toggleBtn.innerHTML = '☀️ Light Mode';
+        } else {
+            toggleBtn.innerHTML = '🌙 Dark Mode';
         }
 
-        var savedTheme = localStorage.getItem(storageKey) || 'light';
-        applyTheme(savedTheme);
-
-        toggleButton.addEventListener('click', function () {
-            var nextTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            localStorage.setItem(storageKey, nextTheme);
-            applyTheme(nextTheme);
+        toggleBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('ids-theme', 'light');
+                toggleBtn.innerHTML = '🌙 Dark Mode';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('ids-theme', 'dark');
+                toggleBtn.innerHTML = '☀️ Light Mode';
+            }
         });
     })();
 </script>
