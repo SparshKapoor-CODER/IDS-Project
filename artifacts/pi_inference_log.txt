@@ -8,14 +8,14 @@
   CPU cores   : 6
 
   INT8 TFLite (Primary Deployment Model)
-  Model size      : 8.2 KB
-  Loading time    : 11.0 ms
-  Inference (avg) : 0.0122 ms/sample
-  Inference (p95) : 0.0256 ms/sample
-  Accuracy        : 90.3480%
-  F1-Score        : 0.9336
-  ROC-AUC         : 0.9095
-  Peak CPU usage  : 53.5%
+  Model size      : 10.9 KB
+  Loading time    : 8.7 ms
+  Inference (avg) : 0.0215 ms/sample
+  Inference (p95) : 0.0428 ms/sample
+  Accuracy        : 31.9378%
+  F1-Score        : 0.0000
+  ROC-AUC         : 0.9456
+  Peak CPU usage  : 67.6%
 
   Paper targets (Pi 3B+):
     Loading time    : 223.8 ms
