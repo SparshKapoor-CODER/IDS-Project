@@ -243,6 +243,12 @@ Then adapt `05_raspberry_pi_inference.ipynb` to use `tflite_runtime.interpreter`
 
 ---
 
+```bash
+python app.py --pcap ping.pcap --output ping_results.csv
+```
+
+---
+
 ## References
 
 Key papers in the `Papers/` folder:
